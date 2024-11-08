@@ -11,7 +11,7 @@ struct Dificultad {
 };
 
 void darBienvenida(string clavadiststa_1, string pais, int year) {
-    cout << clavadiststa_1 << " "<< year << " -- " << pais << endl;
+    cout << "\n" << clavadiststa_1 << " "<< year << " -- " << pais << endl;
 }
 
 int generarNum1al100() {
@@ -122,10 +122,14 @@ float generarCalificaciones(float calificacion) {
         var *= -1;
     }
 
+    if (calificacion < 0) {
+        calificacion *= -1;
+    }
+
     return calificacion + var;
 }
 
-int generarScore(float calificaciones[7]) {
+int generarTotal(float calificaciones[7]) {
     // Ordenar calificaciones
     for (int i = 0; i < 7; ++i) {
         for (int j = 0; j < 7; ++j) {
@@ -161,41 +165,61 @@ int main() {
     string clavadiststa[7] = {"Alejandra Orozco", "Participant2", "Participant3", "Participant4", "Participant5", "Participant6", "Participant7"};
     string pais[7] = {"Mexico", "Country2", "Country3", "Country4", "Country5", "Country6", "Country7"};
     int year[7] = {2006, 2007, 2008, 2009, 2010, 2011, 2012};
-    // Array de calificaciones
-    float scores[7];
     
-    float calificaciones[7];
-
-    darBienvenida(clavadiststa[0], pais[0], year[0]);
-    
-    Dificultad dificultad = generarDificultad();
-    
-    float calificacion = generarCalificacion(dificultad.indiceDeDesviacion);
-    // cout << "Dificultad: " << dificultad << endl;
-    // Imprimir calificaciones filtradas
-    // cout << "probabilidades: ";
-    // for (int i = 0; i < 6; ++i) {
-    //     cout << probabilidades[i] << " ";
-    // }
-    // cout << endl;
-    // cout << "probabilidadesK: ";
-    // for (int i = 0; i < 6; ++i) {
-    //     cout << probabilidadesK[i] << " ";
-    // }
-    // cout << endl;
-    // cout << "Probabilidad Cal: " << probabilidadCal << endl;
-    // cout << "Calificacion: " << float(calificacion)/10 << endl;
-    cout << "Calificacion: " << calificacion << endl;
-
-    // Llenar array de calificaciones
+    float gross_scores[7];
     for (int i = 0; i < 7; ++i) {
-        calificaciones[i] = generarCalificaciones(calificacion);
-        cout << calificaciones[i] / 10 << ", ";
+        int score = 0;
+        
+        darBienvenida(clavadiststa[i], pais[i], year[i]);
+        
+        // Bucle para generar 6 clavados
+        for (int j = 0; j < 6; ++j) {
+            // Array de calificaciones
+            float calificaciones[7];
+
+            Dificultad dificultad = generarDificultad();
+            cout << "DD: " << dificultad.dificultad / 10 << "  --  " ;
+            
+            float calificacion = generarCalificacion(dificultad.indiceDeDesviacion);
+
+            // Llenar array de calificaciones
+            for (int k = 0; k < 7; ++k) {
+                calificaciones[k] = generarCalificaciones(calificacion);
+                cout << calificaciones[k] / 10 << ", ";
+            }
+            
+            // Generar total y gross score
+            int total = generarTotal(calificaciones) / 10;
+            cout << " --  Total: " << total;
+            
+            int points = total * dificultad.dificultad / 20;
+            cout << " --  Points: " << points ;
+
+            score += points;
+            cout << " --  Score: " << score << endl;
+        }
+        gross_scores[i] = score;
     }
-    // cout << endl;
+
+    // Ordenar ganadores
+    for (int i = 0; i < 7; ++i) {
+        for (int j = 0; j < 7; ++j) {
+            if (gross_scores[i] > gross_scores[j]) {
+                float temp = gross_scores[i];
+                gross_scores[i] = gross_scores[j];
+                gross_scores[j] = temp;
+
+                string temp2 = clavadiststa[i];
+                clavadiststa[i] = clavadiststa[j];
+                clavadiststa[j] = temp2;
+            }
+        }
+    }
     
-    int gross_score = generarScore(calificaciones);
-    cout << "   Gross Score: " << gross_score / 10 << endl;
-    
+    cout << "\nGanadores: " << endl;
+    cout << "1. " << clavadiststa[0] << " -- " << gross_scores[0] << endl;
+    cout << "2. " << clavadiststa[1] << " -- " << gross_scores[1] << endl;
+    cout << "3. " << clavadiststa[2] << " -- " << gross_scores[2] << endl;
+
     return 0;
 }
