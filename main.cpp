@@ -100,65 +100,32 @@ float generarCalificacion(int desviacion) {
     return calificacion;
 }
 
+float generarCalificaciones(float calificacion) {
+    int probabilidadVar = generarNum1al100();
 
-int main() {
-    cout << "Bienvenido a mi programa" << endl;
-    
-    srand(time(0));
-    string clavadiststa[7] = {"Alejandra Orozco", "Participant2", "Participant3", "Participant4", "Participant5", "Participant6", "Participant7"};
-    string pais[7] = {"Mexico", "Country2", "Country3", "Country4", "Country5", "Country6", "Country7"};
-    int year[7] = {2006, 2007, 2008, 2009, 2010, 2011, 2012};
-    // Array de calificaciones
-    float calificaciones[7];
-
-    darBienvenida(clavadiststa[0], pais[0], year[0]);
-    
-    Dificultad dificultad = generarDificultad();
-    
-    float calificacion = generarCalificacion(dificultad.indiceDeDesviacion);
-    
-    // cout << "Probabilidad Dif: " << probabilidadDif << endl;
-    // cout << "Dificultad: " << dificultad << endl;
-    // Imprimir calificaciones filtradas
-    // cout << "probabilidades: ";
-    // for (int i = 0; i < 6; ++i) {
-    //     cout << probabilidades[i] << " ";
-    // }
-    // cout << endl;
-    // cout << "probabilidadesK: ";
-    // for (int i = 0; i < 6; ++i) {
-    //     cout << probabilidadesK[i] << " ";
-    // }
-    // cout << endl;
-    // cout << "Probabilidad Cal: " << probabilidadCal << endl;
-    // cout << "Calificacion: " << float(calificacion)/10 << endl;
-    
-    // Llenar array de calificaciones
-    for (int i = 0; i < 7; ++i) {
-        int probabilidadVar = generarNum1al100();
-
-        int var;
-        if (probabilidadVar <= 20) {
-            var = 0;
-        } else if (probabilidadVar <= 50) {
-            var = 5;
-        } else if (probabilidadVar <= 70) {
-            var = 10;
-        } else if (probabilidadVar <= 84) {
-            var = 15;
-        } else if (probabilidadVar <= 94) {
-            var = 20;
-        } else {
-            var = 25;
-        }
-
-        if (probabilidadVar % 2 == 0) {
-            var *= -1;
-        }
-
-        calificaciones[i] = calificacion + var;
+    int var;
+    if (probabilidadVar <= 20) {
+        var = 0;
+    } else if (probabilidadVar <= 50) {
+        var = 5;
+    } else if (probabilidadVar <= 70) {
+        var = 10;
+    } else if (probabilidadVar <= 84) {
+        var = 15;
+    } else if (probabilidadVar <= 94) {
+        var = 20;
+    } else {
+        var = 25;
     }
-    
+
+    if (probabilidadVar % 2 == 0 && calificacion < var) {
+        var *= -1;
+    }
+
+    return calificacion + var;
+}
+
+int generarScore(float calificaciones[7]) {
     // Ordenar calificaciones
     for (int i = 0; i < 7; ++i) {
         for (int j = 0; j < 7; ++j) {
@@ -175,16 +142,60 @@ int main() {
     for (int i = 1; i < 6; ++i) {
         calificacionesFiltradas[i - 1] = calificaciones[i];
     }
-    
-    // Imprimir calificaciones filtradas
-    // cout << fixed << setprecision(1); 
-    cout << "Calificaciones filtradas: ";
+
+    // Sumar calificaciones
+    float suma = 0;
     for (int i = 0; i < 5; ++i) {
-        cout << calificacionesFiltradas[i] / 10 << " ";
+        suma += calificacionesFiltradas[i];
     }
-    cout << endl;
+
+    return suma;
+}
 
 
 
+int main() {
+    cout << "Bienvenido a mi programa" << endl;
+    
+    srand(time(0));
+    string clavadiststa[7] = {"Alejandra Orozco", "Participant2", "Participant3", "Participant4", "Participant5", "Participant6", "Participant7"};
+    string pais[7] = {"Mexico", "Country2", "Country3", "Country4", "Country5", "Country6", "Country7"};
+    int year[7] = {2006, 2007, 2008, 2009, 2010, 2011, 2012};
+    // Array de calificaciones
+    float scores[7];
+    
+    float calificaciones[7];
+
+    darBienvenida(clavadiststa[0], pais[0], year[0]);
+    
+    Dificultad dificultad = generarDificultad();
+    
+    float calificacion = generarCalificacion(dificultad.indiceDeDesviacion);
+    // cout << "Dificultad: " << dificultad << endl;
+    // Imprimir calificaciones filtradas
+    // cout << "probabilidades: ";
+    // for (int i = 0; i < 6; ++i) {
+    //     cout << probabilidades[i] << " ";
+    // }
+    // cout << endl;
+    // cout << "probabilidadesK: ";
+    // for (int i = 0; i < 6; ++i) {
+    //     cout << probabilidadesK[i] << " ";
+    // }
+    // cout << endl;
+    // cout << "Probabilidad Cal: " << probabilidadCal << endl;
+    // cout << "Calificacion: " << float(calificacion)/10 << endl;
+    cout << "Calificacion: " << calificacion << endl;
+
+    // Llenar array de calificaciones
+    for (int i = 0; i < 7; ++i) {
+        calificaciones[i] = generarCalificaciones(calificacion);
+        cout << calificaciones[i] / 10 << ", ";
+    }
+    // cout << endl;
+    
+    int gross_score = generarScore(calificaciones);
+    cout << "   Gross Score: " << gross_score / 10 << endl;
+    
     return 0;
 }
