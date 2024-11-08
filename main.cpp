@@ -1,9 +1,14 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <iomanip>
+
 using namespace std;
 
-int probabilidades[6] = {5,10,15,30,20,15};
+struct Dificultad {
+    float dificultad;
+    int indiceDeDesviacion;
+};
 
 void darBienvenida(string clavadiststa_1, string pais, int year) {
     cout << clavadiststa_1 << " "<< year << " -- " << pais << endl;
@@ -17,13 +22,47 @@ float generarDificultadAleatoria(int n1, int n2) {
     return rand()%(n2-n1+1) + n1;
 }
 
-void indiceDeDesviacion(int x) {
-    // Asegurarse de que x no sea mayor que el tamaño del array
-    if (x > 6) {
-        x = 6;
-    }
+float generarCalificacionAleatoria(int n1, int n2) {
+    return rand()%(n2-n1+1) + n1;
+}
 
-    for (int i = 0; i < x; ++i) {
+Dificultad generarDificultad() {
+    Dificultad resultado;
+    int probabilidadDif = generarNum1al100();
+
+    if (probabilidadDif <= 5) {
+        resultado.dificultad = generarDificultadAleatoria(14, 20);
+    } else if (probabilidadDif <= 15) {
+        resultado.dificultad = generarDificultadAleatoria(20, 25);
+        resultado.indiceDeDesviacion = 1;
+    } else if (probabilidadDif <= 30) {
+        resultado.dificultad = generarDificultadAleatoria(25, 30);
+        resultado.indiceDeDesviacion = 1;
+    } else if (probabilidadDif <= 60) {
+        resultado.dificultad = generarDificultadAleatoria(30, 35);
+        resultado.indiceDeDesviacion = 2;
+    } else if (probabilidadDif <= 80) {
+        resultado.dificultad = generarDificultadAleatoria(35, 40);
+        resultado.indiceDeDesviacion = 2;
+    } else if (probabilidadDif <= 95) {
+        resultado.dificultad = generarDificultadAleatoria(40, 45);
+        resultado.indiceDeDesviacion = 3;
+    } else {
+        resultado.dificultad = generarDificultadAleatoria(45, 47);
+        resultado.indiceDeDesviacion = 3;
+    }
+    return resultado;
+}
+
+float generarCalificacion(int desviacion) {
+    float calificacion = 0; // Inicializar calificacion a 0
+    int probabilidadCal = generarNum1al100();
+
+    // Establecer campana de probabilidades
+    int probabilidades[6] = {5,10,15,30,20,15};
+    desviacion > 6 ? desviacion = 6 : desviacion;
+
+    for (int i = 0; i < desviacion; ++i) {
         // Guardar el primer elemento
         int temp = probabilidades[0];
 
@@ -35,64 +74,10 @@ void indiceDeDesviacion(int x) {
         }
         probabilidades[j - 1] = temp;
     }
-}
 
-
-float generarDificultad() {
-    float dificultad;
-    int probabilidadDif = generarNum1al100();
-
-    if (probabilidadDif <= 5) {
-        dificultad = generarDificultadAleatoria(14, 19);
-    } else if (probabilidadDif <= 15) {
-        dificultad = generarDificultadAleatoria(20, 25);
-        indiceDeDesviacion(1);
-    } else if (probabilidadDif <= 30) {
-        dificultad = generarDificultadAleatoria(25, 30);
-        indiceDeDesviacion(1);
-    } else if (probabilidadDif <= 60) {
-        dificultad = generarDificultadAleatoria(30, 35);
-        indiceDeDesviacion(2);
-    } else if (probabilidadDif <= 80) {
-        dificultad = generarDificultadAleatoria(35, 40);
-        indiceDeDesviacion(2);
-    } else if (probabilidadDif <= 95) {
-        dificultad = generarDificultadAleatoria(40, 45);
-        indiceDeDesviacion(3);
-    } else {
-        dificultad = generarDificultadAleatoria(45, 47);
-        indiceDeDesviacion(3);
-    }
-    return dificultad;
-}
-
-float generarCalificacionAleatoria(int n1, int n2) {
-    return rand()%(n2-n1+1) + n1;
-}
-
-
-int main() {
-    cout << "Bienvenido a mi programa" << endl;
-    
-    srand(time(0));
-    string clavadiststa[7] = {"Alejandra Orozco", "Participant2", "Participant3", "Participant4", "Participant5", "Participant6", "Participant7"};
-    string pais[7] = {"Mexico", "Country2", "Country3", "Country4", "Country5", "Country6", "Country7"};
-    int year[7] = {2006, 2007, 2008, 2009, 2010, 2011, 2012};
-    // Array de calificaciones
-    float calificaciones[7];
-
-    darBienvenida(clavadiststa[0], pais[0], year[0]);
-    
-    float dificultad = generarDificultad();
-    
-    int probabilidadCal = generarNum1al100();
-    float calificacion;
-
-    
-
+    // Modificar campana de probabilidades con base en la dificultad
     int probabilidadesK[6] = {};
     probabilidadesK[0] = probabilidades[0];
-
     for (int i = 1; i < 6; ++i) {
         probabilidadesK[i] = probabilidadesK[i-1] + probabilidades[i];
     }
@@ -112,6 +97,25 @@ int main() {
     } else {
         calificacion += generarCalificacionAleatoria(90, 100);
     }
+    return calificacion;
+}
+
+
+int main() {
+    cout << "Bienvenido a mi programa" << endl;
+    
+    srand(time(0));
+    string clavadiststa[7] = {"Alejandra Orozco", "Participant2", "Participant3", "Participant4", "Participant5", "Participant6", "Participant7"};
+    string pais[7] = {"Mexico", "Country2", "Country3", "Country4", "Country5", "Country6", "Country7"};
+    int year[7] = {2006, 2007, 2008, 2009, 2010, 2011, 2012};
+    // Array de calificaciones
+    float calificaciones[7];
+
+    darBienvenida(clavadiststa[0], pais[0], year[0]);
+    
+    Dificultad dificultad = generarDificultad();
+    
+    float calificacion = generarCalificacion(dificultad.indiceDeDesviacion);
     
     // cout << "Probabilidad Dif: " << probabilidadDif << endl;
     // cout << "Dificultad: " << dificultad << endl;
@@ -173,6 +177,7 @@ int main() {
     }
     
     // Imprimir calificaciones filtradas
+    // cout << fixed << setprecision(1); 
     cout << "Calificaciones filtradas: ";
     for (int i = 0; i < 5; ++i) {
         cout << calificacionesFiltradas[i] / 10 << " ";
