@@ -11,7 +11,7 @@ struct Dificultad {
 };
 
 void darBienvenida(string clavadiststa_1, string pais, int year) {
-    cout << "\n" << clavadiststa_1 << " "<< year << " -- " << pais << endl;
+    cout << "\n" << clavadiststa_1 << " " << year << " -- " << pais << endl;
 }
 
 int generarNum1al100() {
@@ -55,18 +55,14 @@ Dificultad generarDificultad() {
 }
 
 float generarCalificacion(int desviacion) {
-    float calificacion = 0; // Inicializar calificacion a 0
+    float calificacion = 0;
     int probabilidadCal = generarNum1al100();
 
-    // Establecer campana de probabilidades
     int probabilidades[6] = {5,10,15,30,20,15};
     desviacion > 6 ? desviacion = 6 : desviacion;
 
     for (int i = 0; i < desviacion; ++i) {
-        // Guardar el primer elemento
         int temp = probabilidades[0];
-
-        // Encontrar la posición correcta para colocar el elemento guardado
         int j = 1;
         while (j < 6 && probabilidades[j] > temp) {
             probabilidades[j - 1] = probabilidades[j];
@@ -75,7 +71,6 @@ float generarCalificacion(int desviacion) {
         probabilidades[j - 1] = temp;
     }
 
-    // Modificar campana de probabilidades con base en la dificultad
     int probabilidadesK[6] = {};
     probabilidadesK[0] = probabilidades[0];
     for (int i = 1; i < 6; ++i) {
@@ -130,7 +125,6 @@ float generarCalificaciones(float calificacion) {
 }
 
 int generarTotal(float calificaciones[7]) {
-    // Ordenar calificaciones
     for (int i = 0; i < 7; ++i) {
         for (int j = 0; j < 7; ++j) {
             if (calificaciones[i] > calificaciones[j]) {
@@ -141,13 +135,11 @@ int generarTotal(float calificaciones[7]) {
         }
     }
 
-    // Eliminar primera y ultima calificacion
     float calificacionesFiltradas[5];
     for (int i = 1; i < 6; ++i) {
         calificacionesFiltradas[i - 1] = calificaciones[i];
     }
 
-    // Sumar calificaciones
     float suma = 0;
     for (int i = 0; i < 5; ++i) {
         suma += calificacionesFiltradas[i];
@@ -156,8 +148,6 @@ int generarTotal(float calificaciones[7]) {
     return suma;
 }
 
-
-
 int main() {
     cout << "Bienvenido a mi programa" << endl;
     
@@ -165,35 +155,34 @@ int main() {
     string clavadiststa[7] = {"Alejandra Orozco", "Participant2", "Participant3", "Participant4", "Participant5", "Participant6", "Participant7"};
     string pais[7] = {"Mexico", "Country2", "Country3", "Country4", "Country5", "Country6", "Country7"};
     int year[7] = {2006, 2007, 2008, 2009, 2010, 2011, 2012};
-    
+
+    float calificacionesTotales[7][6][7]; // Array tridimensional para almacenar todas las calificaciones
+
     float gross_scores[7];
     for (int i = 0; i < 7; ++i) {
         int score = 0;
         
         darBienvenida(clavadiststa[i], pais[i], year[i]);
         
-        // Bucle para generar 6 clavados
         for (int j = 0; j < 6; ++j) {
-            // Array de calificaciones
             float calificaciones[7];
 
             Dificultad dificultad = generarDificultad();
-            cout << "DD: " << dificultad.dificultad / 10 << "  --  " ;
+            cout << "DD: " << dificultad.dificultad / 10 << "  --  ";
             
             float calificacion = generarCalificacion(dificultad.indiceDeDesviacion);
 
-            // Llenar array de calificaciones
             for (int k = 0; k < 7; ++k) {
                 calificaciones[k] = generarCalificaciones(calificacion);
+                calificacionesTotales[i][j][k] = calificaciones[k]; // Guardar calificación en el array tridimensional
                 cout << calificaciones[k] / 10 << ", ";
             }
             
-            // Generar total y gross score
             int total = generarTotal(calificaciones) / 10;
             cout << " --  Total: " << total;
             
             int points = total * dificultad.dificultad / 20;
-            cout << " --  Points: " << points ;
+            cout << " --  Points: " << points;
 
             score += points;
             cout << " --  Score: " << score << endl;
@@ -201,7 +190,6 @@ int main() {
         gross_scores[i] = score;
     }
 
-    // Ordenar ganadores
     for (int i = 0; i < 7; ++i) {
         for (int j = 0; j < 7; ++j) {
             if (gross_scores[i] > gross_scores[j]) {
@@ -220,6 +208,20 @@ int main() {
     cout << "1. " << clavadiststa[0] << " -- " << gross_scores[0] << endl;
     cout << "2. " << clavadiststa[1] << " -- " << gross_scores[1] << endl;
     cout << "3. " << clavadiststa[2] << " -- " << gross_scores[2] << endl;
+
+    // Mostrar todas las calificaciones almacenadas
+    cout << "\nCalificaciones de cada participante en cada clavado:\n";
+    for (int i = 0; i < 7; ++i) {
+        cout << "Clavadista " << clavadiststa[i] << ":\n";
+        for (int j = 0; j < 6; ++j) {
+            cout << "  Clavado " << j + 1 << ": ";
+            for (int k = 0; k < 7; ++k) {
+                cout << calificacionesTotales[i][j][k] / 10 << " ";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
 
     return 0;
 }
