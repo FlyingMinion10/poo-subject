@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #include <cstdlib>
 #include <ctime>
 using namespace std;
@@ -17,12 +18,12 @@ class TransporteAereo {
     protected:
         int matricula;
         string nombreAerolinea;
-    
     public:
         virtual ~TransporteAereo() {} // Add a virtual destructor
         virtual int getMatricula() {
-                return matricula;
+            return matricula;
         }
+        virtual string getTipo() const = 0; // Método virtual puro para obtener el tipo de transporte
 };
 
 class Avion : public TransporteAereo {
@@ -38,9 +39,8 @@ class Avion : public TransporteAereo {
                 nombreAerolinea = "Sin aerolinea";
             } else {
                 matricula = random(1000, 9999);
-                nombreAerolinea = (n = 2) ? "Aeromexico" : (n = 1) ? "Volaris" : "Interjet";   
+                nombreAerolinea = (n == 2) ? "Aeromexico" : (n == 1) ? "Volaris" : "Interjet";   
                 estado = "Volando";
-                // print("Avion creado # " + to_string(matricula) + " de " + nombreAerolinea);
             }
         }
 
@@ -56,6 +56,10 @@ class Avion : public TransporteAereo {
         void descomponer() {
             descompuesto = true;
         }
+
+        string getTipo() const override {
+            return "Avion";
+        }
 };
 
 class Ovni : public TransporteAereo {
@@ -66,9 +70,11 @@ class Ovni : public TransporteAereo {
         Ovni() {
             matricula = random(10, 99);
             nombreAerolinea = "Unknown";
-            // print("Ovni creado con matricula: " + to_string(matricula));
         }
 
+        string getTipo() const override {
+            return "Ovni";
+        }
 };
 
 class Clima {
@@ -125,12 +131,10 @@ class Clima {
 class Aeropuerto {
     private:
         string nombre;
-        // TransporteAereo EspacioAereo[5];
-        vector<TransporteAereo> EspacioAereo;
+        vector<TransporteAereo*> EspacioAereo;
         Avion PistaAterrizaje[5];
         Avion PistaDespegue[4];
         Clima ClimaActual;
-        int espacioAereoCount;
         int pistaAterrizajeCount;
         int pistaDespegueCount;
         bool hayOvni;
@@ -138,10 +142,15 @@ class Aeropuerto {
     public:
         Aeropuerto(string n) {
             nombre = n;
-            espacioAereoCount = 0;
             pistaAterrizajeCount = 0;
             pistaDespegueCount = 0;
             hayOvni = false;
+        }
+
+        ~Aeropuerto() {
+            for (auto transporte : EspacioAereo) {
+                delete transporte;
+            }
         }
 
         void getClimaActual() {
@@ -153,8 +162,8 @@ class Aeropuerto {
             if (hayOvni) {
                 hayOvni = false;
                 // Eliminar el ultimo objeto de Espacio aereo, que es el ovni
+                delete EspacioAereo.back();
                 EspacioAereo.pop_back();
-                espacioAereoCount--;
                 print("OVNI se ha ido");
                 return;
             }
@@ -162,31 +171,21 @@ class Aeropuerto {
             // Generacion de aeronaves
             int n = random(1, 20);
             if (n <= 15) { // SI SE DETECTA UN AVION
-                // print("Avion detectado");
-                Avion tempPlane = Avion(n%3);
-                cout << "Avion detectado ";
+                TransporteAereo* tempPlane = new Avion(n % 3);
                 // Si el espacio aereo no está lleno, agregar el avion
-                if (espacioAereoCount < 5) {
+                if (EspacioAereo.size() < 5) {
                     EspacioAereo.push_back(tempPlane);
-                    espacioAereoCount++;
-                    print("con matricula " + to_string(tempPlane.getMatricula()) + " aproximandose");
+                    print("Avion detectado con matricula " + to_string(tempPlane->getMatricula()) + " aproximandose");
                 } else {
-                    print("con matricula " + to_string(tempPlane.getMatricula()) + " volando a otro aeropuerto");
+                    delete tempPlane;
+                    print("Avion detectado con matricula " + to_string(tempPlane->getMatricula()) + " volando a otro aeropuerto");
                 }
 
             } else if (n <= 20) { // SI SE DETECTA UN OVNI
-                Ovni tempOvni = Ovni();
-                cout << "OVNI detectado ";
-                // Si el espacio aereo no está lleno, agregar el ovni
-                if (espacioAereoCount < 5) {
-                    EspacioAereo.push_back(tempOvni);
-                    espacioAereoCount++;
-                    hayOvni = true;
-                    print("con matricula " + to_string(tempOvni.getMatricula()) + " en cola");
-                    print("Trafico aereo detenido por OVNI");
-                } else {
-                    print("con matricula " + to_string(tempOvni.getMatricula()) + " volando a otro planeta");
-                }
+                TransporteAereo* tempOvni = new Ovni();
+                cout << "OVNI detectado, tráfico aéreo detenido" << endl;
+                EspacioAereo.push_back(tempOvni);
+                hayOvni = true;
             } else {
                 print("No se detecto nada");
             }
@@ -195,7 +194,7 @@ class Aeropuerto {
         int posicionAterrizaje() {
             // Determinar la mejor posicion para aterrizar
             int bestPos = 4;
-            for (int i=4; i==0; i = i-1) {
+            for (int i = 4; i >= 0; i--) {
                 // Revisar si la posicion i está vacia
                 if (PistaAterrizaje[i].getMatricula() == 0) {
                     bestPos = i;
@@ -209,7 +208,7 @@ class Aeropuerto {
         int posicionDespegue() {
             // Determinar la mejor posicion para despegar
             int bestPos = 3;
-            for (int i=3; i==0; i = i-1) {
+            for (int i = 3; i >= 0; i--) {
                 // Revisar si la posicion i está vacia
                 if (PistaDespegue[i].getMatricula() == 0) {
                     bestPos = i;
@@ -221,60 +220,42 @@ class Aeropuerto {
         }
 
         void simularEspacioAerero() {
-
-            // Si no hay aviones en el espacio aereo, no hacer nada
-            if (hayOvni) {
+            if (EspacioAereo.empty()) {
                 return;
             }
 
-            if (espacioAereoCount == 0) {
-                print("Espacio aereo vacio");
-                return;
-
-            } else if (pistaAterrizajeCount < 5) { // Verificar si hay aviones en la pista de aterrizaje
-                Avion AvionAterrizando;
-
-                try {
-                    AvionAterrizando = dynamic_cast<Avion&>(EspacioAereo[0]);
-                } catch (const std::bad_cast& e) {
-                    print("Error al aterrizar avion");
-                    return;
-                }
-                int pos = posicionAterrizaje();
+            TransporteAereo* transporte = EspacioAereo.front();
+            if (transporte->getTipo() == "Avion" && pistaAterrizajeCount < 5) { // Verificar si hay espacio en la pista de aterrizaje
+                Avion* AvionAterrizando = dynamic_cast<Avion*>(transporte);
+                print("Avion con matricula " + to_string(AvionAterrizando->getMatricula()) + " aterrizando");
                 
                 // Aterrizar avion en la ultima posicion
-                PistaAterrizaje[pos] = AvionAterrizando;
+                int pos = posicionAterrizaje();
+                PistaAterrizaje[pos] = *AvionAterrizando;
 
                 // Modificadores de estado
-                AvionAterrizando.SetPlanePosition(pos, "Aterrizando");
+                AvionAterrizando->SetPlanePosition(pos, "Aterrizando");
                 pistaAterrizajeCount++;
 
                 // Eliminar el avion del espacio aereo
                 EspacioAereo.erase(EspacioAereo.begin());
-                espacioAereoCount--;
+                delete transporte;
             } else {
-                print("Pista de aterrizaje llena");
+                print("Pista de aterrizaje llena o transporte no identificado para aterrizar");
             }
-
-            
         }
 
         void simularPistaAterrizaje() {
             string situacion = ClimaActual.getSituacion();
-            // Si no hay aviones en el espacio aereo, no hacer nada
-            if (hayOvni) {
+            if (hayOvni || pistaAterrizajeCount == 0) {
                 return;
             }
             
-            if (pistaAterrizajeCount == 0) {
-                print("Pista de aterrizaje vacia");
-                return;
-
-            } else if (pistaDespegueCount < 4) { 
-                
-                // Poner aviones en la pista de despegue
+            if (pistaDespegueCount < 4) { 
                 Avion AvionEnCola = PistaAterrizaje[0];
                 print("Avion con matricula " + to_string(AvionEnCola.getMatricula()) + " cambiando a pista de despegue");
+                
+                // Formarse en la pista de despegue
                 int pos = posicionDespegue();
                 PistaDespegue[pos] = AvionEnCola;
                 
@@ -283,60 +264,56 @@ class Aeropuerto {
                 pistaDespegueCount++;
                 
                 // Eliminar avion de la pista de aterrizaje
-                for (int i=0; i<4; i++) {
-                    PistaAterrizaje[i] = PistaAterrizaje[i+1];
+                for (int i = 0; i < 4; i++) {
+                    PistaAterrizaje[i] = PistaAterrizaje[i + 1];
                 }
                 pistaAterrizajeCount--;
             } else {
-                print("Pista de aterrizaje llena");
+                print("Pista de despegue llena");
             }
         }
 
         void simularPistaDespegue() {
-            string situacion = ClimaActual.getSituacion();
-            // Si no hay aviones en la pista de despegue, no hacer nada
-            if (hayOvni) {
+            if (hayOvni || pistaDespegueCount == 0) {
                 return;
             }
 
             if (pistaDespegueCount > 0) {
-                // Despegar aviones en la primera posicion de la pista de despegue
                 Avion AvionVolando = PistaDespegue[0];
-                print("Avion con matricula " + to_string(AvionVolando.getMatricula()) + "Despegando");
+                print("Avion con matricula " + to_string(AvionVolando.getMatricula()) + " despegando");
                 
                 // Eliminar avion de la pista de despegue
-                for (int i=0; i<3; i++) {
-                    PistaDespegue[i] = PistaDespegue[i+1];
+                for (int i = 0; i < 3; i++) {
+                    PistaDespegue[i] = PistaDespegue[i + 1];
                 }
                 pistaDespegueCount--;
-            } else {
-                print("Pista de despegue vacia");
             }
         }
 
         void imprimirEspacios() {
-            cout <<"EA [ ";
-            for (int i=0; i<espacioAereoCount; i++) {
-                cout << to_string(EspacioAereo[i].getMatricula()) << ", ";
+            
+            cout <<"PD [ ";
+            for (int i = 0; i < 4; i++) {
+                if (PistaDespegue[i].getMatricula() != 0) {
+                    cout << to_string(PistaDespegue[i].getMatricula()) << ", ";
+                }
             }
             cout << "]" << endl;
 
             cout << "PA [ ";
-            for (int i=0; i<5; i++) {
+            for (int i = 0; i < 5; i++) {
                 if (PistaAterrizaje[i].getMatricula() != 0) {
                     cout << to_string(PistaAterrizaje[i].getMatricula()) << ", ";
                 }
             }
             cout << "]" << endl;
 
-            cout <<"PD [ ";
-            for (int i=0; i<4; i++) {
-                if (PistaDespegue[i].getMatricula() != 0) {
-                    cout << to_string(PistaDespegue[i].getMatricula()) << ", ";
-                    
-                }
+            cout <<"EA [ ";
+            for (size_t i = 0; i < EspacioAereo.size(); i++) {
+                cout << to_string(EspacioAereo[i]->getMatricula()) << ", ";
             }
             cout << "]" << endl;
+
         }      
 };
 
@@ -347,7 +324,7 @@ int main(int argc, char const *argv[]) {
 
     while (true) {
         // delay de 1 segundo
-        for (int i=0; i<1000000000; i++);
+        for (int i = 0; i < 1000000000; i++);
         print("---------------------------------------------------------");
 
         aeropuertoMx.getClimaActual();
