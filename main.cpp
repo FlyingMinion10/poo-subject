@@ -120,7 +120,7 @@ class Clima {
             }
 
             // Mostrar la temperatura y la situación del clima
-            // print("Clima: " + situacion + " a " + to_string(temperatura) + "°");
+            print("Clima: " + situacion + " a " + to_string(temperatura) + "°");
         }
 
         string getSituacion() {
@@ -169,9 +169,9 @@ class Aeropuerto {
             }
 
             // Generacion de aeronaves
-            int n = random(1, 20);
-            if (n <= 15) { // SI SE DETECTA UN AVION
-                TransporteAereo* tempPlane = new Avion(n % 3);
+            int n = random(1, 7);
+            if (n <= 6) { // SI SE DETECTA UN AVION
+                TransporteAereo* tempPlane = new Avion(n % 3 + 1);
                 // Si el espacio aereo no está lleno, agregar el avion
                 if (EspacioAereo.size() < 5) {
                     EspacioAereo.push_back(tempPlane);
@@ -181,7 +181,7 @@ class Aeropuerto {
                     print("Avion detectado con matricula " + to_string(tempPlane->getMatricula()) + " volando a otro aeropuerto");
                 }
 
-            } else if (n <= 20) { // SI SE DETECTA UN OVNI
+            } else if (n <= 7) { // SI SE DETECTA UN OVNI
                 TransporteAereo* tempOvni = new Ovni();
                 cout << "OVNI detectado, tráfico aéreo detenido" << endl;
                 EspacioAereo.push_back(tempOvni);
