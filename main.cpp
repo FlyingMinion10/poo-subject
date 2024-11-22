@@ -177,15 +177,20 @@ class Aeropuerto {
                     EspacioAereo.push_back(tempPlane);
                     print("Avion detectado con matricula " + to_string(tempPlane->getMatricula()) + " aproximandose");
                 } else {
-                    delete tempPlane;
                     print("Avion detectado con matricula " + to_string(tempPlane->getMatricula()) + " volando a otro aeropuerto");
+                    delete tempPlane;
                 }
 
             } else if (n <= 18) { // SI SE DETECTA UN OVNI
                 TransporteAereo* tempOvni = new Ovni();
-                cout << "OVNI detectado, tráfico aéreo detenido" << endl;
-                EspacioAereo.push_back(tempOvni);
-                hayOvni = true;
+                if (EspacioAereo.size() < 5) {
+                    print("OVNI detectado, tráfico aéreo detenido");
+                    EspacioAereo.push_back(tempOvni);
+                    hayOvni = true;
+                } else {
+                    print("OVNI detectado, tráfico aéreo detenido");
+                    delete tempOvni;
+                }
             } else {
                 print("No se detecto nada");
             }
@@ -232,21 +237,23 @@ class Aeropuerto {
             TransporteAereo* transporte = EspacioAereo.front();
             if (transporte->getTipo() == "Avion") { // Verificar si hay espacio en la pista de aterrizaje
                 Avion* AvionAterrizando = dynamic_cast<Avion*>(transporte);
-                print("Avion con matricula " + to_string(AvionAterrizando->getMatricula()) + " aterrizando");
-                
-                // Aterrizar avion en la ultima posicion
-                int pos = posicionAterrizaje();
-                PistaAterrizaje[pos] = *AvionAterrizando;
+                if (AvionAterrizando) {
+                    print("Avion con matricula " + to_string(AvionAterrizando->getMatricula()) + " aterrizando");
+                    
+                    // Aterrizar avion en la ultima posicion
+                    int pos = posicionAterrizaje();
+                    PistaAterrizaje[pos] = *AvionAterrizando;
 
-                // Modificadores de estado
-                AvionAterrizando->SetPlanePosition(pos, "Aterrizando");
-                pistaAterrizajeCount++;
+                    // Modificadores de estado
+                    AvionAterrizando->SetPlanePosition(pos, "Aterrizando");
+                    pistaAterrizajeCount++;
 
-                // Eliminar el avion del espacio aereo
-                EspacioAereo.erase(EspacioAereo.begin());
-                delete transporte;
+                    // Eliminar el avion del espacio aereo
+                    EspacioAereo.erase(EspacioAereo.begin());
+                    delete transporte;
+                }
             } else {
-                print("Ttransporte no identificado para aterrizar");
+                print("Transporte no identificado para aterrizar");
             }
         }
 
@@ -262,14 +269,16 @@ class Aeropuerto {
                 
                 // Formarse en la pista de despegue
                 int pos = posicionDespegue();
-                PistaDespegue[pos] = AvionEnCola;
+                if (pos < 4) {
+                    PistaDespegue[pos] = AvionEnCola;
+                }
                 
                 // Modificadores de estado
                 AvionEnCola.SetPlanePosition(pos, "Despegando");
                 pistaDespegueCount++;
                 
                 // Eliminar avion de la pista de aterrizaje
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < pistaAterrizajeCount - 1; i++) {
                     PistaAterrizaje[i] = PistaAterrizaje[i + 1];
                 }
                 pistaAterrizajeCount--;
@@ -288,7 +297,7 @@ class Aeropuerto {
                 print("Avion con matricula " + to_string(AvionVolando.getMatricula()) + " despegando");
                 
                 // Eliminar avion de la pista de despegue
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < pistaDespegueCount - 1; i++) {
                     PistaDespegue[i] = PistaDespegue[i + 1];
                 }
                 pistaDespegueCount--;
@@ -298,7 +307,7 @@ class Aeropuerto {
         void imprimirEspacios() {
             
             cout <<"PD [ ";
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < pistaDespegueCount; i++) {
                 if (PistaDespegue[i].getMatricula() != 0) {
                     cout << to_string(PistaDespegue[i].getMatricula()) << ", ";
                 }
@@ -306,7 +315,7 @@ class Aeropuerto {
             cout << "]" << endl;
 
             cout << "PA [ ";
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < pistaAterrizajeCount; i++) {
                 if (PistaAterrizaje[i].getMatricula() != 0) {
                     cout << to_string(PistaAterrizaje[i].getMatricula()) << ", ";
                 }
