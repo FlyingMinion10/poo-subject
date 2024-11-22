@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <vector>
 #include <cstdlib>
 #include <ctime>
 using namespace std;
@@ -10,30 +9,48 @@ int random(int min, int max) {
     return min + (rand() % (max - min + 1));
 }
 
+void print(string s) {
+    cout << s << endl;
+}
+
 class TransporteAereo {
     protected:
         int matricula;
         string nombreAerolinea;
+    
+    public:
+        int getMatricula() {
+                return matricula;
+        }
 };
 
 class Avion : public TransporteAereo {
     private:
         int posicion;
         string estado;
+        bool descompuesto;
     public:
         // Metodo para crear un avion
-        Avion(int m, string n) {
-            matricula = m;
-            nombreAerolinea = n;
-            posicion = 0;
+        Avion(int n = 0) {
+            if (n == 0) {
+                matricula = 0;
+                nombreAerolinea = "Sin aerolinea";
+            } else {
+                matricula = random(1000, 9999);
+                nombreAerolinea = (n = 2) ? "Aeromexico" : (n = 1) ? "Volaris" : "Interjet";   
+                print("Avion creado con matricula: " + to_string(matricula) + " y aerolinea: " + nombreAerolinea);
+            }
         }
 
-        void setPlanePosition(int p) {
-            posicion = p;
+        
+
+        void SetPlanePosition(int pos, string est) {
+            posicion = pos;
+            estado = est;
         }
 
-        int getPlanePosition() {
-            return posicion;
+        void descomponer() {
+            descompuesto = true;
         }
 };
 
@@ -42,19 +59,12 @@ class Ovni : public TransporteAereo {
         int posicion;
         string estado;
     public:
-        Ovni(int t, string p) {
-            int matricula;
-            string nombreAerolinea;
-            posicion = 0;
+        Ovni() {
+            matricula = random(10, 99);
+            nombreAerolinea = "Unknown";
+            print("Ovni creado con matricula: " + to_string(matricula));
         }
 
-        void setPlanePosition(int p) {
-            posicion = p;
-        }
-
-        int getPlanePosition() {
-            return posicion;
-        }
 };
 
 class Clima {
@@ -100,8 +110,8 @@ class Clima {
             }
 
             // Mostrar la temperatura y la situación del clima
-            cout << "Temperatura: " << temperatura << endl;
-            cout << "Situacion: " << situacion << endl;
+            print("Temperatura: " + to_string(temperatura));
+            print("Situacion: " + situacion);
         }
 
         string getSituacion() {
@@ -112,22 +122,76 @@ class Clima {
 class Aeropuerto {
     private:
         string nombre;
-        vector<TransporteAereo*> EspacioAereo;
-        vector<Avion> PistaAterrizaje;
-        vector<Avion> PistaDespegue;
+        TransporteAereo EspacioAereo[5];
+        Avion PistaAterrizaje[5];
+        Avion PistaDespegue[4];
         Clima ClimaActual;
+        int espacioAereoCount;
+        int PistaAterrizajeCount;
+        int PistaDespegueCount;
+        bool hayOvni;
 
     public:
         Aeropuerto(string n) {
             nombre = n;
-            PistaAterrizaje.resize(5);
-            PistaDespegue.resize(4);
+            espacioAereoCount = 0;
+            PistaAterrizajeCount = 0;
+            PistaDespegueCount = 0;
+            hayOvni = false;
         }
 
         void getClimaActual() {
             ClimaActual.CambiarClima();
         }
         
+        void simularLlegadaAviones() {
+            // Si hay un ovni, detener el tráfico aéreo
+            if (hayOvni) {
+                print("Trafico aereo detenido por OVNI");
+                hayOvni = false;
+                return;
+            }
+
+            // Generacion de aeronaves
+            int n = random(1, 20);
+            if (n <= 15) { // SI SE DETECTA UN AVION
+                print("Avion detectado");
+                Avion tempPlane = Avion(n%3);
+
+                if (espacioAereoCount < 5) {
+                    EspacioAereo[espacioAereoCount++] = tempPlane;
+                    print("Avion con matricula " + to_string(tempPlane.getMatricula()) + " aproximandose");
+                } else {
+                    print("Espacio aereo lleno, avion con matricula " + to_string(tempPlane.getMatricula()) + " volando a otro aeropuerto");
+                }
+
+            } else if (n <= 20) { // SI SE DETECTA UN OVNI
+                print("Ovni detectado");
+                Ovni tempOvni = Ovni();
+                if (espacioAereoCount < 5) {
+                    EspacioAereo[espacioAereoCount++] = tempOvni;
+                    hayOvni = true;
+                    print("OVNI con matricula " + to_string(tempOvni.getMatricula()) + " aproximandose");
+                } else {
+                    print("Espacio aereo lleno, OVNI con matricula " + to_string(tempOvni.getMatricula()) + " volando a otro planeta");
+                }
+            } else {
+                print("No se detecto nada");
+            }
+        }
+
+        void simularEspacioAerero() {
+
+            if (espacioAereoCount == 0 ) {
+                print("Espacio aereo vacio");
+                return;
+            }
+
+            
+
+            // Verificar si hay aviones en la pista de aterrizaje
+        }
+
         void simularPistaAterrizaje() {
             string situacion = ClimaActual.getSituacion();
             if (situacion == "Lluvioso") {
@@ -146,41 +210,23 @@ class Aeropuerto {
             }
         }
         
-        void simularEspacioAerero() {
-            // Generacion de aeronaves
-            int n = random(1, 20);
-            if (n <= 15) {
-                cout << "Avion detectado" << endl;
-                Avion avion(random(1000, 9999), "Aeromexico");
-                EspacioAereo.push_back(new Avion(avion));
-            } else if (n <= 20) {
-                cout << "OVNI detectado" << endl;
-                Ovni ovni(random(10, 99), "Unknown");
-                EspacioAereo.push_back(new Ovni(ovni));
-            } else {
-                cout << "No se detecto nada" << endl;
-            }
-            // Todos los aviones en el espacio aereo se mueven 1 posicion hacia adelante
-            
-        }
 };
 
 int main(int argc, char const *argv[]) {
     srand(time(0)); // Semilla para los números aleatorios
     string input;
-    Aeropuerto aeropuerto("AICM");
+    Aeropuerto aeropuertoMx("AICM");
 
     while (true) {
-        cout << "Ingrese 0 para salir o cualquier otra tecla para continuar: ";
-        cin >> input;
-        if (input == "0") {
-            break;
-        }
+        // delay de 1 segundo
+        for (int i=0; i<1000000000; i++);
+        print("---------------------------------------------------------");
 
-        aeropuerto.getClimaActual();
-        aeropuerto.simularEspacioAerero();
-        aeropuerto.simularPistaDespegue();
-        aeropuerto.simularPistaAterrizaje();
+        aeropuertoMx.getClimaActual();
+        aeropuertoMx.simularPistaDespegue();
+        aeropuertoMx.simularPistaAterrizaje();
+        aeropuertoMx.simularEspacioAerero();
+        aeropuertoMx.simularLlegadaAviones();
     }
 
     return 0;
