@@ -19,7 +19,8 @@ class TransporteAereo {
         string nombreAerolinea;
     
     public:
-        int getMatricula() {
+        virtual ~TransporteAereo() {} // Add a virtual destructor
+        virtual int getMatricula() {
                 return matricula;
         }
 };
@@ -42,7 +43,9 @@ class Avion : public TransporteAereo {
             }
         }
 
-        
+        // void Aterrizar(TransporteAereo avion) {
+        //     print("Avion aterrizando");
+        // }
 
         void SetPlanePosition(int pos, string est) {
             posicion = pos;
@@ -182,12 +185,23 @@ class Aeropuerto {
 
         void simularEspacioAerero() {
 
+            // Si no hay aviones en el espacio aereo, no hacer nada
             if (espacioAereoCount == 0 ) {
-                print("Espacio aereo vacio");
+                print("Espacio aereo vacio"); // MFR
+                return;
+            } else if (hayOvni) { // Si hay un ovni, detener el tráfico aéreo
+                print("Trafico aereo detenido por OVNI");
+                return;
+            } else if (PistaAterrizajeCount == 5) { // Si la pista de aterrizaje está llena, no hacer nada
+                print("Pista de aterrizaje llena");
                 return;
             }
 
-            
+            // Aterrizar avion en la posicion 0
+            Avion AvionAterrizando = dynamic_cast<Avion&>(EspacioAereo[0]);
+            PistaAterrizaje[PistaAterrizajeCount++] = AvionAterrizando;
+            AvionAterrizando.SetPlanePosition(0, "Aterrizando");
+
 
             // Verificar si hay aviones en la pista de aterrizaje
         }
