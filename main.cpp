@@ -169,8 +169,8 @@ class Aeropuerto {
             }
 
             // Generacion de aeronaves
-            int n = random(1, 7);
-            if (n <= 6) { // SI SE DETECTA UN AVION
+            int n = random(1, 20);
+            if (n <= 15) { // SI SE DETECTA UN AVION
                 TransporteAereo* tempPlane = new Avion(n % 3 + 1);
                 // Si el espacio aereo no está lleno, agregar el avion
                 if (EspacioAereo.size() < 5) {
@@ -181,7 +181,7 @@ class Aeropuerto {
                     print("Avion detectado con matricula " + to_string(tempPlane->getMatricula()) + " volando a otro aeropuerto");
                 }
 
-            } else if (n <= 7) { // SI SE DETECTA UN OVNI
+            } else if (n <= 18) { // SI SE DETECTA UN OVNI
                 TransporteAereo* tempOvni = new Ovni();
                 cout << "OVNI detectado, tráfico aéreo detenido" << endl;
                 EspacioAereo.push_back(tempOvni);
@@ -220,12 +220,17 @@ class Aeropuerto {
         }
 
         void simularEspacioAerero() {
-            if (EspacioAereo.empty()) {
+            if (hayOvni || EspacioAereo.empty() || ClimaActual.getSituacion() == "Lluvioso") {
+                return;
+            }
+
+            if (pistaAterrizajeCount >= 5) {
+                print("Pista de aterrizaje llena");
                 return;
             }
 
             TransporteAereo* transporte = EspacioAereo.front();
-            if (transporte->getTipo() == "Avion" && pistaAterrizajeCount < 5) { // Verificar si hay espacio en la pista de aterrizaje
+            if (transporte->getTipo() == "Avion") { // Verificar si hay espacio en la pista de aterrizaje
                 Avion* AvionAterrizando = dynamic_cast<Avion*>(transporte);
                 print("Avion con matricula " + to_string(AvionAterrizando->getMatricula()) + " aterrizando");
                 
@@ -241,7 +246,7 @@ class Aeropuerto {
                 EspacioAereo.erase(EspacioAereo.begin());
                 delete transporte;
             } else {
-                print("Pista de aterrizaje llena o transporte no identificado para aterrizar");
+                print("Ttransporte no identificado para aterrizar");
             }
         }
 
@@ -274,7 +279,7 @@ class Aeropuerto {
         }
 
         void simularPistaDespegue() {
-            if (hayOvni || pistaDespegueCount == 0) {
+            if (hayOvni || pistaDespegueCount == 0 || ClimaActual.getSituacion() == "Lluvioso") {
                 return;
             }
 
