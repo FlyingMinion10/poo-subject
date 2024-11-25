@@ -292,12 +292,14 @@ class Aeropuerto {
                 // Mover aviones en la pista de aterrizaje
                 for (int i = 0; i < pistaAterrizajeCount - 1; i++) {
                     Avion* AvionEnMovimiento = PistaAterrizaje[i+1];
+                    if (AvionEnMovimiento != nullptr) {  // Ensure the pointer is valid
                     AvionEnMovimiento->descomponer("aterrizaje");
                     if (AvionEnMovimiento->avionDescompuesto()) {
                         break;
                     }
                     PistaAterrizaje[i] = AvionEnMovimiento;
                     PistaAterrizaje[i+1] = nullptr;
+                    }
                 }
             } else {
                 print("Pista de despegue llena");
@@ -321,15 +323,17 @@ class Aeropuerto {
                 PistaDespegue[0] = nullptr;
             }
             
-            for (int i = 0; i < pistaDespegueCount; i++) {
-                print("Dentro del for"+to_string(i));
+            for (int i = 0; i < pistaDespegueCount - 1; i++) {
+                print("Dentro del for" + to_string(i));
                 Avion* AvionEnMovimiento = PistaDespegue[i+1];
-                AvionEnMovimiento->descomponer("aterrizaje");
-                if (AvionEnMovimiento->avionDescompuesto()) {
-                    break;
+                if (AvionEnMovimiento != nullptr) {  // Ensure the pointer is valid
+                    AvionEnMovimiento->descomponer("aterrizaje");
+                    if (AvionEnMovimiento->avionDescompuesto()) {
+                        break;
+                    }
+                    PistaDespegue[i] = AvionEnMovimiento;
+                    PistaDespegue[i+1] = nullptr;
                 }
-                PistaDespegue[i] = AvionEnMovimiento;
-                PistaDespegue[i+1] = nullptr;
             }
         }
 
