@@ -39,7 +39,7 @@ class Avion : public TransporteAereo {
                 matricula = 0;
                 nombreAerolinea = "Sin aerolinea";
             } else {
-                matricula = n;
+                matricula = random(100, 999);
                 nombreAerolinea = (n == 2) ? "Aeromexico" : (n == 1) ? "Volaris" : "Interjet";   
                 estado = "Volando";
                 descompuesto = false;
@@ -178,7 +178,8 @@ class Aeropuerto {
             ClimaActual.CambiarClima();
         }
         
-        void simularLlegadaAviones(int turno) {
+        // void simularLlegadaAviones(int turno) {
+        void simularLlegadaAviones() {
             if (hayOvni) {
                 hayOvni = false;
                 delete EspacioAereo.back();
@@ -189,12 +190,12 @@ class Aeropuerto {
 
             int n = random(1, 19);
             if (n <= 15) {
-                TransporteAereo* tempPlane = new Avion(turno);
+                TransporteAereo* tempPlane = new Avion(n % 3 + 1 );
                 if (EspacioAereo.size() < 5) {
                     EspacioAereo.push_back(tempPlane);
-                    print("Avion detectado #" + to_string(tempPlane->getMatricula()) + " aproximandose");
+                    print("Avion #" + to_string(tempPlane->getMatricula()) + " aproximandose");
                 } else {
-                    print("Avion detectado # " + to_string(tempPlane->getMatricula()) + " volando a otro aeropuerto");
+                    print("Avion # " + to_string(tempPlane->getMatricula()) + " volando a otro aeropuerto");
                     delete tempPlane;
                 }
 
@@ -324,7 +325,6 @@ class Aeropuerto {
             }
             
             for (int i = 0; i < pistaDespegueCount - 1; i++) {
-                print("Dentro del for" + to_string(i));
                 Avion* AvionEnMovimiento = PistaDespegue[i+1];
                 if (AvionEnMovimiento != nullptr) {  // Ensure the pointer is valid
                     AvionEnMovimiento->descomponer("aterrizaje");
@@ -339,27 +339,30 @@ class Aeropuerto {
 
         void imprimirEspacios() {
             
-            cout <<"PD [ ";
-            for (int i = 0; i < 4; i++) {
-                if (PistaDespegue[i] != nullptr) {
-                    cout << to_string(PistaDespegue[i]->getMatricula()) << ", ";
-                }
+            // Espacio aereo
+            cout <<"-> [ ";
+            for (size_t i = EspacioAereo.size(); i = 0; i--) {
+                cout << to_string(EspacioAereo[i]->getMatricula()) << ", ";
             }
-            cout << "]" << endl;
+            cout << "]";
 
-            cout << "PA [ ";
-            for (int i = 0; i < 5; i++) {
+            // Pista de aterrizaje
+            cout << "[ ";
+            for (int i = 4; i >= 0; i--) {
                 if (PistaAterrizaje[i] != nullptr) {
                     cout << to_string(PistaAterrizaje[i]->getMatricula()) << ", ";
                 }
             }
-            cout << "]" << endl;
+            cout << "]";
 
-            cout <<"EA [ ";
-            for (size_t i = 0; i < EspacioAereo.size(); i++) {
-                cout << to_string(EspacioAereo[i]->getMatricula()) << ", ";
+            // Pista de despegue
+            cout <<"[ ";
+            for (int i = 3; i >= 0; i--) {
+                if (PistaDespegue[i] != nullptr) {
+                    cout << to_string(PistaDespegue[i]->getMatricula()) << ", ";
+                }
             }
-            cout << "]" << endl;
+            cout << "] ->" << endl;
         }      
 };
 
@@ -368,14 +371,17 @@ int main(int argc, char const *argv[]) {
     string input;
     Aeropuerto aeropuertoMx("AICM");
 
-    for (int turno = 0; turno < 30; turno++) {
-        for (int i = 1; i < 1000000000; i++);
+    // Eliminar lo impreso en pantalla
+    system("clear");
+    for (int turno = 1; turno < 30; turno++) {
+        for (int i = 0; i < 1000000000; i++);
         print("---------------------------------------------------------");
         aeropuertoMx.cambiarClimaActual();
         aeropuertoMx.simularPistaDespegue();
         aeropuertoMx.simularPistaAterrizaje();
         aeropuertoMx.simularEspacioAerero();
-        aeropuertoMx.simularLlegadaAviones(turno);
+        // aeropuertoMx.simularLlegadaAviones(turno);
+        aeropuertoMx.simularLlegadaAviones();
         aeropuertoMx.imprimirEspacios();
     }
 
