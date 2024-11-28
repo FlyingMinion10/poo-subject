@@ -5,6 +5,14 @@
 #include <ctime>
 using namespace std;
 
+// Variables globales de probabilidad
+const int prob_avion = 5;
+const int prob_ovni = 1;
+const int prob_nada = 1;
+const int espectro_generacion = prob_avion + prob_ovni + prob_nada;
+
+const int probabilidad_descompostura = 30;
+
 // Generar numero random a partir de dos parametros de rango
 int random(int min, int max) {
     return min + (rand() % (max - min + 1));
@@ -61,7 +69,7 @@ class Avion : public TransporteAereo {
                 return;
             }
             int pd = random(1, 100);
-            if (pd <= 30) {
+            if (pd <= probabilidad_descompostura) {
                 print("Avion #" + to_string(matricula) + " descompuesto en pista de " + pista);
                 descompuesto = true;
                 turnosDescompuesto = 2;
@@ -188,8 +196,8 @@ class Aeropuerto {
                 return;
             }
 
-            int n = random(1, 19);
-            if (n <= 15) {
+            int n = random(1, espectro_generacion*9);
+            if (n <= prob_avion*9) {
                 TransporteAereo* tempPlane = new Avion(n % 3 + 1 );
                 if (EspacioAereo.size() < 5) {
                     EspacioAereo.push_back(tempPlane);
@@ -199,7 +207,7 @@ class Aeropuerto {
                     delete tempPlane;
                 }
 
-            } else if (n <= 18) {
+            } else if (n <= prob_avion*9 + prob_ovni*9) {
                 print("OVNI ");
                 TransporteAereo* tempOvni = new Ovni();
                 if (EspacioAereo.size() < 5) {
