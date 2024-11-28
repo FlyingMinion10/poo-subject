@@ -61,7 +61,7 @@ class Avion : public TransporteAereo {
                 return;
             }
             int pd = random(1, 100);
-            if (pd <= 10) {
+            if (pd <= 30) {
                 print("Avion #" + to_string(matricula) + " descompuesto en pista de " + pista);
                 descompuesto = true;
                 turnosDescompuesto = 2;
@@ -340,9 +340,9 @@ class Aeropuerto {
         void imprimirEspacios() {
             
             // Espacio aereo
-            cout <<"-> [ ";
-            for (size_t i = EspacioAereo.size(); i = 0; i--) {
-                cout << to_string(EspacioAereo[i]->getMatricula()) << ", ";
+            cout << "-> [ ";
+            for (size_t i = EspacioAereo.size(); i > 0; i--) {
+                cout << to_string(EspacioAereo[i - 1]->getMatricula()) << ", ";
             }
             cout << "]";
 
